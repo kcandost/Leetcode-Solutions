@@ -1,0 +1,29 @@
+
+[LC.898](https://leetcode.com/problems/bitwise-ors-of-subarrays/description/)
+# Intuition
+OR accumulates bits, so for subarrays ending at position i you only need to consider ORs of subarrays ending at i-1 and extend them with arr[i], plus the singleton arr[i]. Keeping only distinct ORs ending at each position keeps the state small (bounded by bit-width).
+
+# Approach
+- Maintain `prev`: set of all distinct ORs of subarrays ending at the previous index.
+- For each element `a` in `arr`, compute `curr = {a | x for x in prev} ∪ {a}`: all subarrays ending here.
+- Add `curr` to a global result set.
+- Slide: `prev = curr`.
+- Return size of result set.
+
+# Complexity
+- Time: $$\mathcal{O}(n \cdot B)$$ where \(B\) is the number of bits in the maximum value (≈30), since `prev` stays small.
+- Space: $$\mathcal{O}(n \cdot B)$$ in worst case for the result set, but per-iteration auxiliary is $$\mathcal{O}(B)$$.
+
+# Code
+```python
+from typing import List
+
+class Solution:
+    def subarrayBitwiseORs(self, arr: List[int]) -> int:
+        res = set()
+        prev = set()
+        for a in arr:
+            curr = {a | x for x in prev} | {a}
+            res |= curr
+            prev = curr
+        return len(res)
